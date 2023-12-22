@@ -1,0 +1,49 @@
+apiVersion: v1
+data:
+  id_rsa.pub: |
+    ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDGB/6bUZY2Y22ge+tMndlFaYOWQVshLrQbfbCayDlz9FPKibh2Nz8eLAE1PTYt7HyDswQ/0vPoWY5MQ1AilYsYCYybhZZ/+NI+7CzxciS7YUdx85oRaJ10FZnMj6QB5JMvYPzLrt6hxpsNabOiJ3ZJ865mgQwPVY3t+5Vdq/wR+TlVyXNGmyE22SVyBs5G1K5TG9759KwHbXzyAyYvDx+qZLJG3yoAvkqhG4n9DhCxZ+uz3rmz/tEo5aBOGG1YxeXR7EPwPwBnUNWVFOQ7V8NhsRGSWToka4L+XDfh8lGSE6b4fjXSH5NXfb9EW3apMq9asPfxG09bgFEhf3GOd3X6xZdcluvHl/8PZE19WG7pWRY1s1UCm585GoxZA9uLjKcXvwUMV408WdPKvfbmouVBh51uXqEtdyEALXWfXUHPJ0XYvKMu45RJICxUq8zLFCCyxY7LdsVoqz8sfI5yRncyIPUkZMvaMmAMTPMAoLSAy06aUn/eNUo63dh7iIZmGk= kather_clouds@kmas
+kind: ConfigMap
+metadata:
+  name: gitindocker-authkeys-cm
+  namespace: devops-tools
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gits-deployment
+  namespace: devops-tools
+  labels:
+    app: git
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: git
+  template:
+    metadata:
+      labels:
+        app: git
+    spec:
+      containers:
+      - name: git
+        image: hikather/aktools:git
+        imagePullPolicy: Always
+        env:
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+        ports:
+        - containerPort: 22
+        volumeMounts:
+        - mountPath: /git-server/keys/
+          name: authorized-keys
+        - mountPath: /git-server/repos
+          name: repo-volume
+      volumes:
+        - name: repo-volume
+          persistentVolumeClaim:
+            claimName: gits-pv-claim
+        - configMap:
+            name: gitindocker-authkeys-cm
+          name: authorized-keys
