@@ -1,0 +1,26 @@
+# Dockerfile for jenkins slave agent for SIR - contains git, mvn, docker, kubectl
+FROM jenkins/inbound-agent:latest
+
+ARG MAVEN_VERSION=3.8.4
+ARG BASE_URL=https://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries
+
+USER root
+
+RUN apt-get update && \
+    mkdir -p /usr/share/maven /usr/share/maven/ref && \
+    curl -fsSL -o /tmp/apache-maven.tar.gz ${BASE_URL}/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
+    tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 && \
+    rm -f /tmp/apache-maven.tar.gz && \
+    ln -s /usr/share/maven/bin/mvn /usr/bin/mvn && \
+    rm -rf /var/lib/apt/lists/*
+
+USER 1001
+
+# Set the working directory
+WORKDIR /app
+
+# Set environment variables
+ENV MAVEN_VERSION 3.8.4
+ENV MAVEN_HOME /usr/share/maven
+ENV PATH $MAVEN_HOME/bin:$PATH
+ENV MAVEN_CONFIG "${HOME}/.m2"

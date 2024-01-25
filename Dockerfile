@@ -23,4 +23,3 @@ USER jenkins
 
 # Set the working directory for the Jenkins user
 WORKDIR /home/jenkins/agent
-
