@@ -1,0 +1,9 @@
+# this secret is for docker hub login for hikather user 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: k8-sec-docker
+  namespace: devops-tools
+data:
+  .dockerconfigjson: ewoJImF1dGhzIjogewoJCSJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOiB7CgkJCSJhdXRoIjogImFHbHJZWFJvWlhJNmEyRjBhR1Z5Wkc5amEyVnkiCgkJfQoJfQp9
+type: kubernetes.io/dockerconfigjson
