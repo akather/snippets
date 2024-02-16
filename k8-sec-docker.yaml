@@ -7,3 +7,6 @@ metadata:
 data:
   .dockerconfigjson: ewoJImF1dGhzIjogewoJCSJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOiB7CgkJCSJhdXRoIjogImFHbHJZWFJvWlhJNmEyRjBhR1Z5Wkc5amEyVnkiCgkJfQoJfQp9
 type: kubernetes.io/dockerconfigjson
+
+# OR simply run this command
+# cd ~/.docker ; kubectl create secret generic kaniko-secret --from-file=config.json -n devops-tools
