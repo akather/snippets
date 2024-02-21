@@ -1,0 +1,19 @@
+# This Dockerfile is used to create Jenkins slave pod with Kubectl feature.
+# it is saved as -- hikather/aktools:jen-kubectl-slave
+# base image is jenkins inbound-agent
+FROM jenkins/inbound-agent:latest
+
+# switch to root user to install
+USER root
+
+# Install kubectl
+RUN apt-get update
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+RUN install -o root -g root -m 0755 kubectl /usr/bin/kubectl
+RUN chmod +x kubectl
+
+# switch to jenkins user
+USER jenkins
+
+# set the working dir
+WORKDIR /home/jenkins/agent
