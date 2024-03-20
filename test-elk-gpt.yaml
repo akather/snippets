@@ -94,3 +94,16 @@ logstashPipeline:
 
 helm install logstash elastic/logstash -f logstash-values.yaml
 ---
+
+filebeatConfig:
+  filebeat.yml: |
+    filebeat.autodiscover:
+      providers:
+        - type: kubernetes
+          hints.enabled: true
+    output.elasticsearch:
+      hosts: ["http://elasticsearch-master:9200"]
+
+---
+
+helm install filebeat elastic/filebeat -f filebeat-values.yaml
