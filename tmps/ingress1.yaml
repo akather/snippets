@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+        - path: /apple
+          backend:
+           service:
+            name: apple-service
+            port: 5678
+        - path: /banana
+          backend:
+           service:
+            name: banana-service
+            port: 5678

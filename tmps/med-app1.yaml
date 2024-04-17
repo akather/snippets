@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: incometax
+  labels:
+    app: itcalc
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: itcalc
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: itcalc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: itcalc
+  template:
+    metadata:
+      labels:
+        app: itcalc
+    spec:
+      containers:
+      - image: shashankssriva/emi-incometax-calc
+        name: emi-incometax-calc
+        ports:
+        - containerPort: 80
+          name: itcalc
