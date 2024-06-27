@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb
+spec:
+  ports:
+  - port: 8086
+    name: influxdb
+  clusterIP: None
+  selector:
+    app: influxdb
+
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: influxdb
+spec:
+  serviceName: influxdb
+  replicas: 2
+  selector:
+    matchLabels:
+      app: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      containers:
+      - name: influxdb
+        image: influxdb:latest
+        ports:
+        - containerPort: 8086
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            memory: "8Gi"
+            cpu: "4"
+        volumeMounts:
+        - name: influxdb-storage
+          mountPath: /var/lib/influxdb
+        env:
+        - name: INFLUXDB_CONFIG_PATH
+          value: /etc/influxdb/influxdb.conf
+      volumes:
+      - name: influxdb-config
+        configMap:
+          name: influxdb-config
+  volumeClaimTemplates:
+  - metadata:
+      name: influxdb-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 50Gi
+      storageClassName: fast-ssd
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: influxdb-config
+data:
+  influxdb.conf: |
+    [data]
+      # Configure data engine parameters
+      max-concurrent-queries = 20
+      query-memory-bytes = "4G"
+      query-timeout = "30s"
+
+
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-boot-app
+  labels:
+    app: spring-boot-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-boot-app
+  template:
+    metadata:
+      labels:
+        app: spring-boot-app
+    spec:
+      containers:
+      - name: spring-boot-app
+        image: <your-docker-image>
+        ports:
+        - containerPort: 8080
+        env:
+        - name: INFLUXDB_URL
+          value: http://influxdb.<namespace>.svc.cluster.local:8086
+        - name: INFLUXDB_DATABASE
+          value: your-database-name
+        - name: INFLUXDB_USERNAME
+          value: your-username
+        - name: INFLUXDB_PASSWORD
+          value: your-password
+
+
+# InfluxDB connection properties
+spring.influx.url=${INFLUXDB_URL:http://localhost:8086}
+spring.influx.database=${INFLUXDB_DATABASE:your-database-name}
+spring.influx.username=${INFLUXDB_USERNAME:your-username}
+spring.influx.password=${INFLUXDB_PASSWORD:your-password}
+
+
